@@ -67,6 +67,24 @@
       <h2 class="screen__message" id="endMessage">Hay gente que, cuando todo se hunde, se queda a sacar a los demás. Tú eres de esas, Day.</h2>
       <!-- Texto libre — firma o última frase -->
       <p class="screen__text" id="endSign">Lo hice con mucho cariño.</p>
+
+      <!-- Encuesta: ¿te gustó? + nombre obligatorio. Al enviar avisa por correo
+           (vía Web3Forms). La clave se pone en js/game.js (WEB3FORMS_KEY). -->
+      <form id="feedbackForm" class="feedback" novalidate>
+        <p class="feedback__q">¿Te gustó?</p>
+        <div class="feedback__choices" role="group" aria-label="¿Te gustó?">
+          <button type="button" class="feedback__opt" data-value="Sí, me gustó">Sí, me gustó</button>
+          <button type="button" class="feedback__opt" data-value="No me gustó">No me gustó</button>
+        </div>
+        <label class="feedback__namewrap">
+          <span class="feedback__namelabel">Tu nombre</span>
+          <input id="fbName" class="feedback__name" type="text" required maxlength="60"
+                 autocomplete="name" placeholder="Escribe tu nombre" />
+        </label>
+        <button type="submit" id="fbSend" class="btn btn--primary">Enviar</button>
+        <p class="feedback__status" id="fbStatus" role="status" aria-live="polite"></p>
+      </form>
+
       <button id="swimBackBtn" class="btn btn--ghost" type="button">Volver a nadar</button>
     </div>
   </section>

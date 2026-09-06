@@ -50,6 +50,16 @@ El título ("Day"), la frase de la intro, el **mensaje final** y la firma ya tie
 texto propio en `index.html` (marcados con `<!-- Texto libre -->`). Cámbialos por
 lo que quieras decirle.
 
+## Encuesta final (te avisa por correo)
+
+En la pantalla de cierre hay un formulario: **¿te gustó?** + **nombre obligatorio**
++ botón Enviar. Al enviar te llega un correo con la respuesta y el nombre.
+
+Para que funcione, una sola cosa: entra a **https://web3forms.com**, escribe tu
+correo (`afpc36999@gmail.com`), copia la *Access Key* que te da, y pégala en
+`js/game.js` en la línea `var WEB3FORMS_KEY = "PON_TU_ACCESS_KEY_AQUI";`. Guarda y
+sube el cambio. Mientras no la pongas, el botón avisa que falta configurarla.
+
 ## Ajustes rápidos (`js/game.js`)
 
 - `LIGHT_COUNT` — cuántas luces (7).

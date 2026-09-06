@@ -10,6 +10,15 @@
 (function () {
   "use strict";
 
+  /* ===========================================================================
+     >>> CONFIGURA ESTO <<<
+     Clave de Web3Forms para que la encuesta final te llegue por correo.
+     Cómo: entra a https://web3forms.com , escribe tu correo (afpc36999@gmail.com)
+     y te da una "Access Key". Pégala aquí abajo entre comillas y sube el cambio.
+     Mientras no la pongas, el botón "Enviar" avisará que falta configurarla.
+     =========================================================================== */
+  var WEB3FORMS_KEY = "PON_TU_ACCESS_KEY_AQUI";
+
   var REDUCED = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
   /* --------------------------------------------------------------------------
@@ -501,6 +510,87 @@
     endScreen.classList.remove("is-hiding");
     if (hud) hud.hidden = false;
   });
+
+  /* --------------------------------------------------------------------------
+     Encuesta final: ¿te gustó? + nombre obligatorio -> aviso por correo
+     (Web3Forms). Recuerda si ya se envió (localStorage) para no repetir.
+     -------------------------------------------------------------------------- */
+  (function initFeedback() {
+    var form = document.getElementById("feedbackForm");
+    if (!form) return;
+    var opts = form.querySelectorAll(".feedback__opt");
+    var nameInput = document.getElementById("fbName");
+    var statusEl = document.getElementById("fbStatus");
+    var sendBtn = document.getElementById("fbSend");
+    var choice = "";
+
+    try {
+      if (localStorage.getItem("djv-feedback-sent")) {
+        form.classList.add("is-sent");
+        setStatus("Ya enviaste tu respuesta. ¡Gracias! 💜", "is-ok");
+        disable();
+      }
+    } catch (e) {}
+
+    opts.forEach(function (b) {
+      b.addEventListener("click", function () {
+        choice = b.getAttribute("data-value") || "";
+        opts.forEach(function (x) { x.classList.toggle("is-on", x === b); });
+        setStatus("", "");
+      });
+    });
+
+    form.addEventListener("submit", function (e) {
+      e.preventDefault();
+      var name = (nameInput.value || "").trim();
+      if (!name) {
+        nameInput.classList.add("is-missing");
+        nameInput.focus();
+        setStatus("Escribe tu nombre para enviar 🙂", "is-err");
+        return;
+      }
+      nameInput.classList.remove("is-missing");
+
+      if (!WEB3FORMS_KEY || WEB3FORMS_KEY.indexOf("PON_TU") === 0) {
+        setStatus("Falta poner la clave de Web3Forms en js/game.js", "is-err");
+        return;
+      }
+
+      disable();
+      setStatus("Enviando…", "");
+
+      fetch("https://api.web3forms.com/submit", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "Accept": "application/json" },
+        body: JSON.stringify({
+          access_key: WEB3FORMS_KEY,
+          subject: "El viaje de Day — respuesta de " + name,
+          from_name: "El viaje de Day",
+          "Nombre": name,
+          "¿Le gustó?": choice || "(no eligió)"
+        })
+      }).then(function (r) { return r.json(); }).then(function (data) {
+        if (data && data.success) {
+          form.classList.add("is-sent");
+          setStatus("¡Enviado! Gracias por jugar 💜", "is-ok");
+          try { localStorage.setItem("djv-feedback-sent", "1"); } catch (e) {}
+        } else {
+          enable();
+          setStatus("No se pudo enviar. Inténtalo otra vez.", "is-err");
+        }
+      }).catch(function () {
+        enable();
+        setStatus("Sin conexión. Inténtalo otra vez.", "is-err");
+      });
+    });
+
+    function setStatus(msg, cls) {
+      statusEl.textContent = msg;
+      statusEl.className = "feedback__status" + (cls ? " " + cls : "");
+    }
+    function disable() { sendBtn.disabled = true; nameInput.disabled = true; opts.forEach(function (b) { b.disabled = true; }); }
+    function enable() { sendBtn.disabled = false; nameInput.disabled = false; opts.forEach(function (b) { b.disabled = false; }); }
+  })();
 
   /* --------------------------------------------------------------------------
      Color del océano según la profundidad

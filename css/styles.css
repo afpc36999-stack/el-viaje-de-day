@@ -159,6 +159,79 @@ button { font: inherit; color: inherit; cursor: pointer; }
 @keyframes rise { from { opacity: 0; transform: translateY(26px); } to { opacity: 1; transform: translateY(0); } }
 
 /* -----------------------------------------------------------------------------
+   Encuesta final (¿te gustó? + nombre) — dentro de la pantalla de cierre
+   -------------------------------------------------------------------------- */
+.feedback {
+  display: grid;
+  gap: 12px;
+  justify-items: center;
+  width: 100%;
+  max-width: 380px;
+  margin: 6px auto 28px;
+  padding: 22px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: rgba(10, 14, 30, 0.5);
+  backdrop-filter: blur(4px);
+}
+.feedback.is-sent { opacity: 0.75; }
+.feedback__q {
+  margin: 0;
+  font-family: var(--font-cond);
+  text-transform: uppercase;
+  letter-spacing: 0.2em;
+  font-size: 0.72rem;
+  color: var(--text-muted);
+}
+.feedback__choices { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; }
+.feedback__opt {
+  padding: 9px 16px;
+  border-radius: var(--pill);
+  border: 1px solid var(--line);
+  background: rgba(160, 175, 255, 0.06);
+  color: var(--text-soft);
+  font-family: var(--font-sans);
+  font-size: 0.9rem;
+  transition: transform 0.15s ease, border-color 0.15s ease, background-color 0.15s ease, color 0.15s ease;
+}
+.feedback__opt:hover { transform: translateY(-1px); border-color: var(--violet-soft); }
+.feedback__opt.is-on {
+  border-color: var(--violet);
+  background: linear-gradient(120deg, var(--violet), var(--violet-soft));
+  color: #0a0f2a;
+  font-weight: 600;
+}
+.feedback__namewrap { display: grid; gap: 4px; width: 100%; text-align: left; }
+.feedback__namelabel {
+  font-family: var(--font-cond);
+  text-transform: uppercase;
+  letter-spacing: 0.16em;
+  font-size: 0.62rem;
+  color: var(--text-muted);
+}
+.feedback__name {
+  width: 100%;
+  padding: 11px 14px;
+  border-radius: 12px;
+  border: 1px solid var(--line);
+  background: rgba(6, 9, 20, 0.6);
+  color: var(--text);
+  font-family: var(--font-sans);
+  font-size: 1rem;
+}
+.feedback__name:focus-visible { outline: 2px solid var(--gold); outline-offset: 1px; border-color: var(--violet-soft); }
+.feedback__name.is-missing { border-color: #ff7a9c; }
+.feedback #fbSend { padding: 12px 30px; font-size: 0.82rem; }
+.feedback__status {
+  margin: 0;
+  min-height: 1.1em;
+  font-size: 0.85rem;
+  color: var(--text-soft);
+}
+.feedback__status.is-ok { color: var(--violet-soft); }
+.feedback__status.is-err { color: #ff9db4; }
+
+/* -----------------------------------------------------------------------------
    HUD
    -------------------------------------------------------------------------- */
 .hud {
