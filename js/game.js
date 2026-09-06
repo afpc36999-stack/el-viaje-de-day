@@ -17,7 +17,7 @@
      y te da una "Access Key". Pégala aquí abajo entre comillas y sube el cambio.
      Mientras no la pongas, el botón "Enviar" avisará que falta configurarla.
      =========================================================================== */
-  var WEB3FORMS_KEY = "PON_TU_ACCESS_KEY_AQUI";
+  var WEB3FORMS_KEY = "10bfa914-c39d-4ae6-b0a7-a49bd5faf38f";
 
   var REDUCED = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
