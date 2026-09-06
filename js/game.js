@@ -408,12 +408,25 @@
   var lightsValue = document.getElementById("lightsValue");
 
   document.getElementById("diveBtn").addEventListener("click", function () {
+    goFullscreen();
     startAudio();
     reset(true);
     state = "playing";
     introScreen.classList.add("is-hiding");
     if (hud) hud.hidden = false;
   });
+
+  // Pantalla completa del navegador al empezar (si el navegador lo permite).
+  function goFullscreen() {
+    try {
+      var el = document.documentElement;
+      var req = el.requestFullscreen || el.webkitRequestFullscreen || el.msRequestFullscreen;
+      if (req) {
+        var r = req.call(el);
+        if (r && r.catch) r.catch(function () {});
+      }
+    } catch (e) {}
+  }
   document.getElementById("swimBackBtn").addEventListener("click", function () {
     // Vuelve a jugar SIN reiniciar la música.
     reset(true);
