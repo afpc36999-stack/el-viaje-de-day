@@ -1,12 +1,10 @@
 # Carpeta de audio
 
-El juego reproduce `drive_a_real_hero.mp3` (empezando en el segundo 50) cuando
-pulsas «Súmergete».
+El juego **ya no usa ningún archivo de música**. La banda sonora es una pieza
+ambiental generada por código en tiempo real (ver `Music` en `js/game.js`):
+un pad grave que cambia de acorde muy despacio y notas sueltas con eco. Es
+original y sin derechos de autor.
 
-Ese archivo **no está incluido en el repositorio** (es una canción con derechos de
-autor). Para que suene la música:
-
-1. Consigue el archivo `drive_a_real_hero.mp3`.
-2. Cópialo dentro de esta carpeta (`audio/`), con ese mismo nombre.
-
-Sin el archivo el juego funciona igual; simplemente no hay música.
+Esta carpeta se puede dejar vacía. Si quieres poner tu propia canción de fondo,
+tendrías que volver a añadir un elemento `<audio>` en `index.html` y usarlo desde
+`js/game.js` en lugar del generador `Music`.

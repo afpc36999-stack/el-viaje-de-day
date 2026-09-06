@@ -6,8 +6,7 @@ Estática (HTML + CSS + JS, sin librerías). Marca cada tarea con `[x]`.
 
 ## Setup
 - [x] Estructura: `css/`, `js/`, `audio/`, `assets/`
-- [x] Audio en `audio/drive_a_real_hero.mp3`
-- [x] `index.html`: canvas a pantalla completa + HUD + pantallas + `<audio>`
+- [x] `index.html`: canvas a pantalla completa + HUD + pantallas
 - [x] Fuentes Google: Playfair Display (títulos), Inter (UI), Oswald (etiquetas)
 - [x] Paleta océano nocturno + acentos violeta/oro; `prefers-reduced-motion`
 
@@ -48,20 +47,15 @@ Estática (HTML + CSS + JS, sin librerías). Marca cada tarea con `[x]`.
       fondo vira a un amanecer, los rayos se intensifican) → pantalla final
 - [x] Pantalla final con mensaje editable + "Volver a nadar" (NO reinicia la música)
 
-## Audio
-- [x] Sin autoplay. "Súmergete" arranca la música en el segundo 50
-      (`currentTime = 50` antes de `play()`), con `.catch()` silencioso
-- [x] Botón flotante tipo pill para pausar/reanudar (aparece al empezar)
-- [x] La música no se reinicia nunca después
-
-## Letra tipo "ola" (js/lyrics.js)
-- [x] Array `{ time, text }` (placeholders; `time` relativo al segundo 50)
-- [x] Sincronización por `timeupdate`; la línea sube con el efecto ondulante
-      (cada letra con senoidal desfasada) y sale hacia arriba
-- [x] Solo visible mientras juegas y suena la música
+## Música
+- [x] Banda sonora ambiental generada por código (WebAudio), original y sin
+      derechos de autor: pad grave que cambia de acorde muy despacio + notas
+      sueltas de escala pentatónica con eco. Objeto `Music` en `js/game.js`.
+- [x] Arranca al pulsar "Súmergete" (necesita el gesto para el AudioContext)
+- [x] Botón flotante tipo pill para silenciar/reanudar (aparece al empezar)
 
 ## Calidad
-- [x] Cero errores/warnings de consola (verificado: arranque, audio, HUD)
+- [x] Cero errores/warnings de consola (verificado: arranque, música, HUD)
 - [x] Animación por transform/opacity en la UI; canvas a 60fps con dt
 - [x] Responsive: canvas se adapta; controles táctiles; HUD escala
 - [x] `prefers-reduced-motion`: menos partículas, sin mecido de rayos, meneo

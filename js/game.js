@@ -4,7 +4,7 @@
    Nadas una ballena con el cursor / el dedo / las flechas. Desciendes por el
    océano (el fondo se oscurece), recoges 7 luces moradas (el 7) y, al juntarlas,
    la ballena emerge a la superficie con el mensaje final.
-   Música: drive_a_real_hero.mp3, empieza en el segundo 50 al pulsar «Súmergete».
+   Música: banda sonora ambiental generada por código (sin archivos), al pulsar «Súmergete».
    Todo el mundo se dibuja en <canvas>. Sin librerías.
    ============================================================================= */
 (function () {
@@ -133,47 +133,113 @@
   window.addEventListener("keyup", function (e) { keys[e.key.toLowerCase()] = false; });
 
   /* --------------------------------------------------------------------------
-     Audio — arranca en el segundo 50, solo tras «Súmergete». Nunca se reinicia.
+     MÚSICA — banda sonora ambiental generada por código (WebAudio).
+     Original, sin archivos y sin derechos de autor: un pad grave que cambia de
+     acorde muy despacio + notas sueltas de escala pentatónica con eco, como
+     gotas de agua o un sónar lejano. Arranca al pulsar «Súmergete».
      -------------------------------------------------------------------------- */
-  var bgm = document.getElementById("bgm");
   var audioBtn = document.getElementById("audioToggle");
   var audioLabel = document.getElementById("audioLabel");
   var audioStarted = false, audioPlaying = false;
-  var START_AT = 50;
+
+  var Music = (function () {
+    var ac = null, master = null, filter = null, muted = false;
+    var padOscs = [], chordIdx = 0, timers = [];
+    // pentatónica menor de La (una octava y pico)
+    var SCALE = [220, 261.63, 293.66, 329.63, 392, 440, 523.25, 587.33];
+    // acordes graves por los que va pasando el pad
+    var CHORDS = [[55, 82.41, 110, 164.81], [49, 73.42, 98, 146.83], [43.65, 65.41, 87.31, 130.81]];
+
+    function ensure() {
+      if (ac) return true;
+      var AC = window.AudioContext || window.webkitAudioContext;
+      if (!AC) return false;
+      ac = new AC();
+      master = ac.createGain(); master.gain.value = 0; master.connect(ac.destination);
+      filter = ac.createBiquadFilter();
+      filter.type = "lowpass"; filter.frequency.value = 560; filter.Q.value = 2;
+      var padGain = ac.createGain(); padGain.gain.value = 0.14;
+      filter.connect(padGain); padGain.connect(master);
+      // vaivén muy lento del brillo del pad
+      var lfo = ac.createOscillator(), lfoG = ac.createGain();
+      lfo.frequency.value = 0.045; lfoG.gain.value = 300;
+      lfo.connect(lfoG); lfoG.connect(filter.frequency); lfo.start();
+      setChord(0);
+      return true;
+    }
+    function setChord(i) {
+      chordIdx = i;
+      var ch = CHORDS[i], now = ac.currentTime;
+      padOscs.forEach(function (o) { try { o.stop(now + 4); } catch (e) {} });
+      padOscs = [];
+      ch.forEach(function (f, k) {
+        var o = ac.createOscillator();
+        o.type = k === 0 ? "sine" : "triangle";
+        o.frequency.setValueAtTime(f, now);
+        o.detune.value = (Math.random() - 0.5) * 7;
+        var g = ac.createGain(); g.gain.value = k === 0 ? 0.5 : 0.26;
+        o.connect(g); g.connect(filter); o.start(now);
+        padOscs.push(o);
+      });
+    }
+    function drop() {
+      if (!ac || muted) return;
+      var now = ac.currentTime;
+      var f = SCALE[(Math.random() * SCALE.length) | 0] * (Math.random() > 0.75 ? 2 : 1);
+      var o = ac.createOscillator(); o.type = "sine"; o.frequency.value = f;
+      var g = ac.createGain();
+      g.gain.setValueAtTime(0.0001, now);
+      g.gain.exponentialRampToValueAtTime(0.1, now + 0.02);
+      g.gain.exponentialRampToValueAtTime(0.0001, now + 2.6);
+      var d = ac.createDelay(); d.delayTime.value = 0.3;
+      var fb = ac.createGain(); fb.gain.value = 0.32;
+      o.connect(g); g.connect(master);
+      g.connect(d); d.connect(fb); fb.connect(d); d.connect(master);
+      o.start(now); o.stop(now + 2.8);
+    }
+    function stopTimers() { timers.forEach(clearInterval); timers = []; }
+
+    return {
+      start: function () {
+        if (!ensure()) return;
+        if (ac.state === "suspended") ac.resume();
+        var now = ac.currentTime;
+        master.gain.cancelScheduledValues(now);
+        master.gain.setValueAtTime(master.gain.value, now);
+        master.gain.linearRampToValueAtTime(muted ? 0 : 0.7, now + 3);
+        stopTimers();
+        timers.push(setInterval(function () { if (Math.random() > 0.4) drop(); }, 2700));
+        timers.push(setInterval(function () { if (ac) setChord((chordIdx + 1) % CHORDS.length); }, 26000));
+      },
+      setMuted: function (m) {
+        muted = m;
+        if (!ac) return;
+        var now = ac.currentTime;
+        master.gain.cancelScheduledValues(now);
+        master.gain.linearRampToValueAtTime(m ? 0 : 0.7, now + 0.4);
+      }
+    };
+  })();
 
   function startAudio() {
-    if (!bgm) return;
-    audioStarted = true;
+    Music.start();
+    audioStarted = true; audioPlaying = true;
     if (audioBtn) audioBtn.hidden = false;
-    try { bgm.currentTime = START_AT; } catch (e) {}
-    var p = bgm.play();
-    if (p && p.then) {
-      p.then(function () {
-        if (bgm.currentTime < START_AT - 1) { try { bgm.currentTime = START_AT; } catch (e) {} }
-        audioPlaying = true; syncAudio();
-      }).catch(function () { audioPlaying = false; syncAudio(); });
-    }
+    syncAudio();
   }
   function syncAudio() {
     if (!audioBtn) return;
     audioBtn.setAttribute("aria-pressed", audioPlaying ? "true" : "false");
-    audioBtn.setAttribute("aria-label", audioPlaying ? "Pausar música" : "Reanudar música");
-    if (audioLabel) audioLabel.textContent = audioPlaying ? "Música" : "En pausa";
+    audioBtn.setAttribute("aria-label", audioPlaying ? "Silenciar música" : "Reanudar música");
+    if (audioLabel) audioLabel.textContent = audioPlaying ? "Música" : "En silencio";
   }
   if (audioBtn) {
     audioBtn.addEventListener("click", function () {
       if (!audioStarted) return;
-      if (audioPlaying) { try { bgm.pause(); } catch (e) {} audioPlaying = false; }
-      else {
-        var p = bgm.play();
-        if (p && p.then) p.then(function () { audioPlaying = true; syncAudio(); }).catch(function () {});
-      }
+      audioPlaying = !audioPlaying;
+      Music.setMuted(!audioPlaying);
       syncAudio();
     });
-  }
-  if (bgm) {
-    bgm.addEventListener("play", function () { audioPlaying = true; syncAudio(); });
-    bgm.addEventListener("pause", function () { if (audioStarted) { audioPlaying = false; syncAudio(); } });
   }
 
   /* --------------------------------------------------------------------------
