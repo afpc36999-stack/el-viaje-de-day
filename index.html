@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+  <meta name="description" content="El viaje de Day — un juego: nada con la ballena hasta el fondo del mar." />
+  <meta name="theme-color" content="#05070f" />
+  <title>Day</title>
+
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='24' fill='%237c5cff'/%3E%3Cpath d='M14 55c0-12 12-19 26-18 12 1 22 3 33-6-3 9-2 13 3 16-7 4-17 6-30 7-18 1-32-1-32-6z' fill='%23fff'/%3E%3C/svg%3E" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Oswald:wght@500;600&family=Playfair+Display:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet" />
+
+  <link rel="stylesheet" href="css/styles.css" />
+</head>
+<body>
+  <!-- ===========================================================================
+       EL JUEGO
+       Todo el mundo del juego (océano, luz, ballena, partículas, coleccionables)
+       se dibuja en el lienzo (canvas). La UI (marcadores, pantallas, botón de
+       audio) va en HTML encima.
+       =========================================================================== -->
+  <canvas id="game" aria-label="Juego: nada con la ballena hacia el fondo del mar"></canvas>
+
+  <!-- Música. Sin autoplay: arranca en el segundo 50 al pulsar «Súmergete». -->
+  <audio id="bgm" src="audio/drive_a_real_hero.mp3" loop preload="auto"></audio>
+
+  <!-- ============================= HUD (durante el juego) ===================== -->
+  <div class="hud" id="hud" hidden>
+    <div class="hud__chip hud__depth">
+      <span class="hud__label">Profundidad</span>
+      <span class="hud__value" id="depthValue">0 m</span>
+    </div>
+    <div class="hud__chip hud__lights">
+      <span class="hud__label">Luces</span>
+      <span class="hud__value"><span id="lightsValue">0</span> / 7</span>
+    </div>
+  </div>
+
+  <!-- Botón de audio flotante (aparece al empezar) -->
+  <button id="audioToggle" class="audio-pill" type="button" hidden aria-pressed="true" aria-label="Pausar música">
+    <span class="audio-pill__icon" aria-hidden="true">
+      <svg viewBox="0 0 24 24"><path d="M4 9v6h4l5 4V5L8 9H4z" /><path d="M16 8.5a4 4 0 0 1 0 7" fill="none" /><path d="M18.5 6a7.5 7.5 0 0 1 0 12" fill="none" /></svg>
+    </span>
+    <span class="audio-pill__label" id="audioLabel">Música</span>
+  </button>
+
+  <!-- ===================== PANTALLA DE INICIO ===================== -->
+  <section class="screen screen--intro" id="introScreen">
+    <div class="screen__inner">
+      <p class="screen__eyebrow">Un juego para nadar</p>
+      <h1 class="screen__title">Day</h1>
+      <!-- Texto libre — cámbialo si quieres -->
+      <p class="screen__text">Nada hacia abajo sin prisa. Cada luz que toques despierta algo dormido, y en el fondo del todo hay una sorpresa que no se ve desde la superficie.</p>
+      <button id="diveBtn" class="btn btn--primary" type="button">
+        Súmergete
+        <span class="btn__pulse" aria-hidden="true"></span>
+      </button>
+      <p class="screen__hint" id="controlHint">Mueve el cursor para nadar · haz clic para un destello · recoge las 7 luces</p>
+    </div>
+  </section>
+
+  <!-- ===================== PANTALLA FINAL ===================== -->
+  <section class="screen screen--end" id="endScreen" hidden>
+    <div class="screen__inner">
+      <p class="screen__eyebrow">De vuelta a la superficie</p>
+      <!-- Texto libre — este es el corazón del regalo. Cámbialo por lo que quieras decirle. -->
+      <h2 class="screen__message" id="endMessage">Hay gente que, cuando todo se hunde, se queda a sacar a los demás. Tú eres de esas, Day.</h2>
+      <!-- Texto libre — firma o última frase -->
+      <p class="screen__text" id="endSign">Gracias por nadar hasta aquí. Vuelve cuando quieras: arriba te espero.</p>
+      <button id="swimBackBtn" class="btn btn--ghost" type="button">Volver a nadar</button>
+    </div>
+  </section>
+
+  <script defer src="js/game.js"></script>
+</body>
+</html>

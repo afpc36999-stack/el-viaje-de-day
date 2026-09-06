@@ -1,0 +1,248 @@
+/* =============================================================================
+   EL VIAJE DE DAY — el juego · estilos de UI
+   El océano, la luz y la ballena se dibujan en <canvas> (ver js/game.js).
+   Aquí solo van: pantallas (inicio / final), HUD, botón de audio, letra.
+   Paleta: océano nocturno (azul profundo → morado) + acentos violeta / oro.
+   ============================================================================= */
+
+:root {
+  --bg: #05070f;
+  --text: #eef1ff;
+  --text-soft: #b7c0e4;
+  --text-muted: #8b93c4;
+  --violet: #7c5cff;
+  --violet-soft: #b79bff;
+  --gold: #f0d18a;
+  --line: rgba(160, 175, 255, 0.20);
+  --glow: rgba(124, 92, 255, 0.45);
+
+  --font-serif: "Playfair Display", Georgia, serif;
+  --font-sans: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --font-cond: "Oswald", "Inter", system-ui, sans-serif;
+  --radius: 22px;
+  --pill: 999px;
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+html, body { margin: 0; height: 100%; }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-sans);
+  overflow: hidden;                 /* el juego ocupa todo; nada de scroll */
+  -webkit-font-smoothing: antialiased;
+  overscroll-behavior: none;
+  touch-action: none;               /* que arrastrar mueva la ballena, no la página */
+}
+[hidden] { display: none !important; }
+button { font: inherit; color: inherit; cursor: pointer; }
+:focus-visible { outline: 2px solid var(--gold); outline-offset: 3px; border-radius: 10px; }
+
+/* El lienzo del juego, a pantalla completa */
+#game {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+  touch-action: none;
+}
+
+/* -----------------------------------------------------------------------------
+   Botones
+   -------------------------------------------------------------------------- */
+.btn {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  border: 1px solid transparent;
+  border-radius: var(--pill);
+  padding: 15px 38px;
+  font-family: var(--font-cond);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+  font-size: 0.9rem;
+  transition: transform 0.22s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.22s ease;
+  will-change: transform;
+}
+.btn--primary {
+  background: linear-gradient(120deg, var(--violet), var(--violet-soft));
+  color: #0a0f2a;
+  box-shadow: 0 14px 40px rgba(124, 92, 255, 0.35);
+}
+.btn--primary:hover { transform: scale(1.05); box-shadow: 0 18px 48px var(--glow); }
+.btn--primary:active { transform: scale(0.97); }
+.btn--ghost {
+  background: rgba(160, 175, 255, 0.08);
+  border-color: var(--line);
+  color: var(--text);
+  backdrop-filter: blur(4px);
+}
+.btn--ghost:hover { transform: translateY(-2px); border-color: var(--violet); box-shadow: 0 0 30px var(--glow); }
+
+.btn__pulse {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  border: 2px solid var(--violet-soft);
+  opacity: 0;
+  animation: btnPulse 2.4s ease-out infinite;
+  pointer-events: none;
+}
+@keyframes btnPulse {
+  0%   { opacity: 0.6; transform: scale(1); }
+  70%  { opacity: 0;   transform: scale(1.4); }
+  100% { opacity: 0;   transform: scale(1.4); }
+}
+
+/* -----------------------------------------------------------------------------
+   Pantallas (inicio / final) — superpuestas al canvas
+   -------------------------------------------------------------------------- */
+.screen {
+  position: fixed;
+  inset: 0;
+  z-index: 20;
+  display: grid;
+  place-items: center;
+  text-align: center;
+  padding: 8vw;
+  background: radial-gradient(120% 90% at 50% 40%, rgba(8, 12, 30, 0.35), rgba(4, 6, 14, 0.72));
+  backdrop-filter: blur(2px);
+  transition: opacity 0.6s ease, visibility 0.6s ease;
+}
+.screen.is-hiding { opacity: 0; visibility: hidden; pointer-events: none; }
+.screen__inner { max-width: 640px; }
+.screen__eyebrow {
+  font-family: var(--font-cond);
+  text-transform: uppercase;
+  letter-spacing: 0.32em;
+  font-size: 0.72rem;
+  color: var(--violet-soft);
+  margin: 0 0 18px;
+  text-shadow: 0 0 20px var(--glow);
+}
+.screen__title {
+  font-family: var(--font-serif);
+  font-weight: 400;
+  font-size: clamp(2.4rem, 9vw, 5rem);
+  line-height: 1.05;
+  margin: 0 0 18px;
+  text-shadow: 0 0 50px rgba(124, 92, 255, 0.35);
+}
+.screen__message {
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-weight: 400;
+  font-size: clamp(2rem, 7vw, 3.8rem);
+  line-height: 1.15;
+  margin: 0 0 18px;
+  text-shadow: 0 0 50px rgba(124, 92, 255, 0.4);
+}
+.screen__text { color: var(--text-soft); font-size: clamp(1rem, 2.6vw, 1.2rem); margin: 0 0 34px; }
+.screen__hint {
+  margin: 22px 0 0;
+  font-family: var(--font-cond);
+  text-transform: uppercase;
+  letter-spacing: 0.2em;
+  font-size: 0.68rem;
+  color: var(--text-muted);
+}
+.screen__inner > * {
+  animation: rise 0.7s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+.screen__inner > :nth-child(2) { animation-delay: 0.08s; }
+.screen__inner > :nth-child(3) { animation-delay: 0.16s; }
+.screen__inner > :nth-child(4) { animation-delay: 0.24s; }
+.screen__inner > :nth-child(5) { animation-delay: 0.32s; }
+@keyframes rise { from { opacity: 0; transform: translateY(26px); } to { opacity: 1; transform: translateY(0); } }
+
+/* -----------------------------------------------------------------------------
+   HUD
+   -------------------------------------------------------------------------- */
+.hud {
+  position: fixed;
+  inset: 0 0 auto 0;
+  z-index: 15;
+  display: flex;
+  justify-content: space-between;
+  padding: clamp(14px, 3vw, 26px);
+  pointer-events: none;
+}
+.hud__chip {
+  display: grid;
+  gap: 2px;
+  padding: 10px 16px;
+  border-radius: 16px;
+  border: 1px solid var(--line);
+  background: rgba(8, 12, 30, 0.55);
+  backdrop-filter: blur(8px);
+  box-shadow: 0 8px 26px rgba(0, 0, 0, 0.4), 0 0 22px rgba(124, 92, 255, 0.12);
+}
+.hud__lights { text-align: right; }
+.hud__label {
+  font-family: var(--font-cond);
+  text-transform: uppercase;
+  letter-spacing: 0.2em;
+  font-size: 0.58rem;
+  color: var(--text-muted);
+}
+.hud__value {
+  font-family: var(--font-serif);
+  font-size: 1.35rem;
+  line-height: 1;
+  color: var(--gold);
+  font-variant-numeric: lining-nums tabular-nums;
+  white-space: nowrap;
+}
+
+/* -----------------------------------------------------------------------------
+   Botón de audio flotante
+   -------------------------------------------------------------------------- */
+.audio-pill {
+  position: fixed;
+  z-index: 16;
+  left: clamp(14px, 3vw, 26px);
+  bottom: clamp(14px, 3vw, 26px);
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 11px 18px 11px 13px;
+  border-radius: var(--pill);
+  border: 1px solid var(--line);
+  background: rgba(8, 12, 30, 0.6);
+  color: var(--text-soft);
+  backdrop-filter: blur(8px);
+  box-shadow: 0 8px 26px rgba(0, 0, 0, 0.45), 0 0 22px rgba(124, 92, 255, 0.14);
+  transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+}
+.audio-pill:hover { transform: translateY(-2px); border-color: var(--violet); box-shadow: 0 10px 30px rgba(0,0,0,0.5), 0 0 26px var(--glow); }
+.audio-pill svg { width: 21px; height: 21px; fill: var(--violet-soft); }
+.audio-pill svg path[fill="none"] { stroke: var(--violet-soft); stroke-width: 2; stroke-linecap: round; }
+.audio-pill__label {
+  font-family: var(--font-cond);
+  text-transform: uppercase;
+  letter-spacing: 0.16em;
+  font-size: 0.72rem;
+}
+.audio-pill[aria-pressed="false"] svg path[fill="none"] { opacity: 0.25; }
+
+/* -----------------------------------------------------------------------------
+   Responsive / accesibilidad
+   -------------------------------------------------------------------------- */
+@media (max-width: 560px) {
+  .audio-pill__label { display: none; }
+  .audio-pill { padding: 11px; }
+  .hud__value { font-size: 1.15rem; }
+  .screen { padding: 7vw 6vw; }
+  .screen__hint { letter-spacing: 0.12em; font-size: 0.62rem; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+}

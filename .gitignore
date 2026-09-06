@@ -1,0 +1,9 @@
+# SO / editor
+.DS_Store
+Thumbs.db
+desktop.ini
+*.swp
+.vscode/
+
+# Audio con derechos de autor — no se versiona (ver audio/LEEME.md)
+audio/*.mp3
